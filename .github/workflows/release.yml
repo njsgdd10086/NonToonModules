@@ -40,8 +40,11 @@ jobs:
           echo "=== 前 18 项 ==="
           unzip -l "$ZIP" | head -20
           unzip -l "$ZIP" | grep -q 'package.json' || { echo "压缩包里没有 package.json"; exit 1; }
-          unzip -l "$ZIP" | grep -q 'Editor/NonToonConverter.cs' || { echo "压缩包里缺少源码"; exit 1; }
-          unzip -l "$ZIP" | grep -q 'Editor/NonToonConverter.cs.meta' || { echo "压缩包里缺少 meta"; exit 1; }
+          unzip -l "$ZIP" | grep -q 'Editor/NonToonModuleRegistry.cs' || { echo "压缩包里缺少模块注册表"; exit 1; }
+          unzip -l "$ZIP" | grep -q 'Editor/NonToonModuleRegistry.cs.meta' || { echo "压缩包里缺少 meta"; exit 1; }
+          unzip -l "$ZIP" | grep -q 'Editor/NonToonModuleManagerWindow.cs' || { echo "压缩包里缺少勾选菜单"; exit 1; }
+          unzip -l "$ZIP" | grep -q 'Shaders/Modules/Fabric/phase_postpixel.hlsl' || { echo "压缩包里缺少织物模块"; exit 1; }
+          unzip -l "$ZIP" | grep -q 'Shaders/Modules/LightLimit/phase_modifylight.hlsl' || { echo "压缩包里缺少亮度模块"; exit 1; }
 
       - name: 创建 Release 并上传
         shell: bash
