@@ -1,0 +1,26 @@
+{
+    "name": "com.nontoon.modules",
+    "version": "0.1.0",
+    "displayName": "NonToon Modules",
+    "description": "NonToon 的扩展模块集合（Shader Core 模块）：\n· 织物/法线细节（Fabric）—— 把 lilToon 那种布料质感补回来\n· 亮度上下限与亮度倍数（LightLimit）—— Light Limit Changer 式的亮度控制\n\n模块以 Shader Core 模块的形式注入，不改动 NonToon 本体。菜单 Tools/NonToon 模块 里可以逐项勾选开关；装了 LilToNonToon Switcher 或 NonToon 亮度控制的话，它们使用时会自动帮你勾上需要的模块。",
+    "unity": "2022.3",
+    "keywords": [
+        "NonToon",
+        "Shader Core",
+        "Module",
+        "Fabric",
+        "Light",
+        "Brightness",
+        "VRChat"
+    ],
+    "author": {
+        "name": "ATRI_NAIXU",
+        "url": "https://github.com/njsgdd10086"
+    },
+    "license": "MIT",
+    "hideInEditor": false,
+    "vpmDependencies": {
+        "jp.lilxyzw.shadercore": "^0.1.5",
+        "jp.lilxyzw.nontoon": "^0.1.3"
+    }
+}
