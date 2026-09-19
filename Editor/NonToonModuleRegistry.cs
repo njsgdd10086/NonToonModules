@@ -88,7 +88,25 @@ namespace NonToonModules
 
             var enabled = GetEnabledModules();
             foreach (var module in result) module.Enabled = enabled.Contains(module.Id);
-            return result.OrderBy(m => m.Id, StringComparer.Ordinal).ToList();
+
+            // 去重：同一个 uniqueID 只保留一份。插件包里如果还留着旧副本、或者同一模块被两处提供，
+            // Shader Core 会把两份都编进 shader（属性/代码重复 → 编译错误），所以这里必须只列一个。
+            var unique = new Dictionary<string, ModuleInfo>(StringComparer.Ordinal);
+            foreach (var module in result)
+            {
+                if (unique.TryGetValue(module.Id, out var first))
+                {
+                    // 优先保留来自 Packages/ 的那份（插件里的旧副本通常在 Packages/ 下，模块包也在 Packages/ 下，
+                    // 两者同时存在时给个提示，让用户知道该删哪一份）
+                    if (first.Source == module.Source) continue;
+                    Debug.LogWarning("[NonToon 模块] 发现同一个模块 id 出现在两处，只会使用一份：\n  " +
+                                     first.Path + "\n  " + module.Path +
+                                     "\n请删掉旧的那一份（插件包里的模块已迁移到 com.nontoon.modules）。");
+                    continue;
+                }
+                unique[module.Id] = module;
+            }
+            return unique.Values.OrderBy(m => m.Id, StringComparer.Ordinal).ToList();
         }
 
         private static string ReadTextSafe(string path)
@@ -326,7 +344,8 @@ namespace NonToonModules
         private static void Save(Type settingsType, object instance)
         {
             var save = settingsType.GetMethod("Save",
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                null, Type.EmptyTypes, null);   // 精确匹配无参版本：ProjectSettings 还有继承来的 Save(bool)，否则会歧义
             if (save != null) save.Invoke(instance, null);
             else EditorUtility.SetDirty(instance as UnityEngine.Object);
         }
