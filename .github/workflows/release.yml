@@ -66,12 +66,13 @@ jobs:
           if gh api "repos/$REPO/releases/tags/$TAG" >/dev/null 2>&1; then
             echo "Release $TAG 已存在，覆盖上传附件"
             gh release upload "$TAG" "$ZIP" --clobber
+            gh release edit "$TAG" --title "NonToon Modules $VERSION"
           else
             echo "创建 Release $TAG"
             if [ -f ".github/RELEASE_NOTES.md" ]; then
-              gh release create "$TAG" "$ZIP" --title "LilToNonToon Switcher $VERSION" --notes-file ".github/RELEASE_NOTES.md"
+              gh release create "$TAG" "$ZIP" --title "NonToon Modules $VERSION" --notes-file ".github/RELEASE_NOTES.md"
             else
-              gh release create "$TAG" "$ZIP" --title "LilToNonToon Switcher $VERSION" --generate-notes
+              gh release create "$TAG" "$ZIP" --title "NonToon Modules $VERSION" --generate-notes
             fi
           fi
 
