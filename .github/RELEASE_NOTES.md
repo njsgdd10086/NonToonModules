@@ -1,51 +1,29 @@
-**LilToNonToon Switcher 1.1.14** —— 补上「第二层 MatCap」，并修掉模块开关不生效的问题（金饰/装饰终于能对上了）。
+**NonToon Modules 0.1.0** —— NonToon 的扩展模块集合（可以单独用，也可以被下面的插件自动带上）
 
-## 一、第二层 MatCap 从来没转过
+## [0.1.0] - 2026-09-17
 
-lilToon 有**两层** MatCap：`_MatCapTex`（第一层）和 `_MatCap2ndTex`（第二层）。
-我们以前只转第一层 ✗ —— 所以走第二层的装饰（帽子的**羽毛 / 玫瑰**）转换后一直是灰的 ✗。
+首个版本。把 NonToon 的扩展做成**独立可复用**的 Shader Core 模块包，可以单独安装使用，
+也可以被 LilToNonToon Switcher / NonToon 亮度控制当作依赖自动带上。
 
-NonToon 恰好有两个槽 ✓，现在：
+### 新增
 
-```
-第一层（_MatCapTex，模式 0/1/2 → Add、3 → Multiply）→ 占一个槽
-第二层（_MatCap2ndTex）                              → 用剩下那个槽
-```
+- **模块管理菜单**（`Tools/NonToon 模块/`）：
+  - `模块管理…` —— 列出工程里发现的所有 `.scmodule`（含 NonToon 自带的，方便对照），逐项勾选；
+  - `勾选：织物 / 法线细节（Fabric）`、`勾选：亮度上下限（LightLimit）` —— 菜单项直接开关，前面带勾；
+  - `重新生成 NonToon shader`、`刷新列表`。
+- **公共 API**（`NonToonModules.NonToonModuleRegistry`）：`Discover()` / `IsEnabled(id)` /
+  `SetEnabled(id, on)` / `EnsureEnabled(id)` / `RegenerateNonToonShader()` ——
+  插件用反射调用它，所以模块包没装时插件仍能编译。
+- **织物 / 法线细节模块（Fabric）**：NonToon 的受光面是恒定的（`sd.lightColor` 被 saturate 过），
+  法线贴图的细微起伏没有输出通道，布料会显得像塑料；本模块在光照之后
+  （`__SC_PHASE_postpixel__`）把「法线扰动造成的明暗差」加回去，观感接近 lilToon 的软明暗。
+  默认强度 0.25（实测扫描：0 = 平得像塑料、0.25 最接近源、0.5 偏强、1.0 出现刺眼噪点）。
+- **亮度上下限模块（LightLimit）**：Light Limit Changer 式的亮度上下限与亮度倍数（自 1.1.9 起的内容）。
 
-配套：`_MatCap2ndColor × _MatCap2ndBlend` 写进对应颜色 ✓、`_MatCap2ndBlendMask` 按第二层的槽位分配遮罩通道 ✓、
-`_UseMatCap2nd = 0` 时留空 ✓。
+### 技术说明
 
-## 二、模块开关「勾着但不生效」
-
-NonToon 的模块开关带 `SCConstValue`，真正让它生效的是材质上的**关键字**
-`<属性名大写>_<值>`（MatCap 是 `_JP_LILXYZW_NONTOON_MATCAPS_ENABLE_1`）。
-我们以前只写 `_Enable` 整数 ✗ —— 表现就是「开关明明勾着，却要手动在 Inspector 里取消再勾一次才亮」✗。
-现在整数 + 关键字都写 ✓，并在转换后**强制重新导入材质**（模块状态需要这次刷新 ✓）。
-
-## 三、顺带一起修的
-
-- 遮罩通道按**实际使用的槽位**分配（以前写死 `MatCapMultiply` ✗ → 数据烘进 R、模块读 A ✗，被乘成 ~0），写完还读回校验 ✓
-- `_BumpMap` 现在**同时**接到 Details 模块的 `_Detail0NormalMap`（喂 `sd.N_detail`，Shade 模块真的用它算明暗 ✓），
-  并把四层 `Detail*Boost` 钉成 1 ✓（详情层会 `albedo *= detailTex * boost`，boost 不是 1 会整体改亮度 ✗）
-- 不需要烘焙时 `_BaseTexture` **指回源贴图** ✓（不再残留旧烘焙图 ✓）
-- 烘焙贴图保持**原长宽比** ✓；MatCap 颜色**总是写入** ✓
-
-## 已知限制
-
-- **金属反射**：lilToon 的 `_UseReflection`（`_Metallic` / `_Smoothness` / 环境反射）NonToon 没有对应能力 ✗，
-  只能近似成高光 —— 「靠反射变金」的部分会比原版偏灰 ✓。
-- **织物质感 / 法线细节**：NonToon 是 toon 硬色阶 + 硬高光 ✗，法线扰动没有足够的输出通道 ✓ ——
-  主 `_NormalMap`、Details 的 `_Detail0NormalMap`、调高 `_NormalScale`、降低 `_Roughness` 都试过 ✓，
-  效果都不理想（降低 roughness 反而变塑料 ✗）。要完全一致只能自建 shader / 写模块 ✓。
-
-## 升级后
-
-ALCOM 更新到 1.1.14 → **重新转换**用了 MatCap（尤其是有第二层的）的材质。
-
-## 安装 / 升级
-
-VCC / ALCOM 仓库地址（总仓库，本插件与 NonToon Light Limit 都在这份索引里）：
-
-```
-https://njsgdd10086.github.io/vpm-listing/index.json
-```
+- Shader Core 的模块白名单按 shader 记录在 `ProjectSettings/jp.lilxyzw.shadercore.asset`
+  （类是 internal，用反射读写 ✓）；外挂包的模块必须自己登记 ✓；
+- 改完模块内容后光 `AssetDatabase.ImportAsset` **不会**重新生成 shader ✗ ——
+  需要临时改动 `.scshader` 的内容再导入 ✓（本包已封装 ✓）；
+- 同一模块 id 出现两份会被 Shader Core 重复编入导致编译错误 ✗ —— 勾选界面会去重并在 Console 提示 ✓。
