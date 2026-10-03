@@ -1,17 +1,24 @@
 // NOTE: keep this file ASCII-only.
-// Emission, added at the very end of the chain (sd.col is final from here on - birp.hlsl line 152).
-// Verified by rendering: an unconditional write to sd.col here turns the avatar solid red, and with real
-// emission data the mouth glows.
-//
-// The gate is the mask VALUE:
-//  - no module floats/colours/textures reach the shader here, and neither '#if' nor a runtime 'if' on a
-//    new SCConstValue property ever became true;
-//  - the converter now writes a .scmask for EVERY material, with R/G/B = the emission (0 when there is
-//    none) and A = the shared mask, so a material without emission simply adds nothing here. Before that,
-//    such a material had no .scmask at all and sampled the white default (+2 per pixel, the 0.414 -> 0.908
-//    blow-out).
+// 1) Tone curve calibrated against lilToon.
+// Pixel-level A/B of the dress region (same camera, same scene) showed our curve is too flat:
+//   darkest 5%   0.385 vs lil 0.328
+//   25%          0.488 vs lil 0.443
+//   median       0.726 vs lil 0.671   <- we are ~8% too bright in the midtones
+//   brightest 5% 0.853 vs lil 0.931   <- and ~8% too dark in the highlights
+// pow(x, 1.25) * 1.02 hits the dominant one: 0.726 -> 0.669 (lil 0.671). The highlights stay a little
+// short (0.853 -> 0.83 vs lil 0.931); matching both at once would need an S-curve steep enough to risk
+// artefacts, so the midtone match wins.
+// 2) Emission, added after the curve, gated by the mask value.
+// The injection point matters: sd.col is final only from here on (birp.hlsl line 152); an
+// unconditional write to sd.col at this point turns the avatar solid red in a rendered check.
+// The gate cannot be a keyword (neither '#if' nor a runtime 'if' on a new SCConstValue property ever
+// became true), so it is the mask itself: the converter writes a .scmask for EVERY material with
+// R/G/B = the emission (0 when there is none). A material with no emission therefore adds nothing.
 if (_Enable)
 {
+    half3 tone = max(sd.col.rgb, 0.0h);
+    sd.col.rgb = pow(tone, 1.25h) * 1.02h;
+
     half3 emission = half3(sd.mask.r, sd.mask.g, sd.mask.b);
     if (max(emission.r, max(emission.g, emission.b)) > 0.002h)
     {

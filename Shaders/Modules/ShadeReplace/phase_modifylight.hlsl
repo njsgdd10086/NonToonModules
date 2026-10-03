@@ -10,6 +10,6 @@
 // easily have several directional lights and exceed 1 - an unbounded restore blew the avatar out before.
 if (_Enable)
 {
-    half3 directLight = saturate(_LightColor0.rgb * 1.12h);
+    half3 directLight = saturate(_LightColor0.rgb * 1.3h);
     sd.lightColor = max(sd.lightColor, directLight);
 }
