@@ -364,7 +364,35 @@ namespace NonToonModules
                 return false;
             }
             RegenerateShader(shaderPath);
+            EnsureShaderPresent(shaderPath);
             return true;
+        }
+
+        /// <summary>
+        /// 兜底：改过模块的 properties.hlsl 之后，上面那次"碰内容"有时会让 Shader Core 生成失败，
+        /// Shader.Find("NonToon") 会返回 null（工程里所有 NonToon 材质变粉）。
+        /// 实测再普通地重新导入一次 .scshader 就能恢复，所以这里检查一次。
+        /// </summary>
+        private static void EnsureShaderPresent(string shaderPath)
+        {
+            var shader = Shader.Find(NonToonShaderName);
+            if (shader != null)
+            {
+                // 属性数量为 0 也算异常（生成出来是空壳）
+                if (shader.GetPropertyCount() > 0) return;
+            }
+            try
+            {
+                AssetDatabase.ImportAsset(shaderPath,
+                    ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
+                AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+                if (Shader.Find(NonToonShaderName) == null)
+                    Debug.LogWarning("[NonToon 模块] NonToon shader 重新生成后找不到，请手动右键 .scshader → Reimport。");
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning("[NonToon 模块] 兜底重新导入失败：" + exception.Message);
+            }
         }
 
         public static void RegenerateShader(string shaderPath)
