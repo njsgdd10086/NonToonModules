@@ -1,25 +1,19 @@
-// NonToon Modules - ShadeReplace phase (main light restore + emission)
+// NonToon Modules - ShadeReplace phase
 //
-// (1) Main light restore - take the BRIGHTER of the two, never add (adding saturates to 1.0 and
-//     renders every lit surface as the raw albedo: the washed-out white face). Never multiply by an
-//     attenuation from this shader either: UNITY_LIGHT_ATTENUATION(atten, i, vertex.position) and
-//     SHADOW_ATTENUATION(i) both return a bogus small value here (measured deviation 0.39 -> 0.77).
+// CURRENT STATE: intentionally a no-op.
 //
-// (2) Emission - carried entirely by the shared mask, NOT by material properties:
-//     the converter bakes "shape x strength x colour" into the mask's R/G/B channels, because Shader
-//     Core's float/color module properties never reach the shader (measured: _EmissionStrength,
-//     _EmissionColor, _LightBoost, _ShadeGradientIndex all read as 0 no matter what the material stores,
-//     while SCConstValue keywords and texture uploads work fine). The shape comes from the alpha of
-//     lilToon's _EmissionMap - its RGB is almost pure white and would light up the whole face.
-//     col = albedo * lightColor, so dividing by albedo gives exactly col += emission.
+// The light restore below is disabled because _LightColor0 in a real scene can be far above 1
+// (this one has 13 directional lights): restoring towards it turned a 0.413 render into 0.96 (blown
+// white), and a threshold version behaved the same in practice.
+//
+// The emission is also disabled: Shader Core does not deliver float/color module properties to the
+// shader (measured: _EmissionStrength / _EmissionColor / _LightBoost / _ShadeGradientIndex always read 0),
+// and _SharedMask carries [SCMask] so Shader Core's own mask system overrides whatever the converter
+// writes into it (verified: the mask asset holds 0.048 while the shader reads pure white).
+// A dedicated non-SCMask texture slot (_EmissionTexture) is declared in properties.hlsl and is the
+// intended route - it still needs the converter side finished and verified.
 // NOTE: keep this file ASCII-only.
 if (_Enable)
 {
-    half strength = min(_MainLightStrength, 1.0h);
-    half3 mainLight = _LightColor0.rgb * strength;
-    sd.lightColor = saturate(max(sd.lightColor, mainLight));
-
-    half3 emission = half3(sd.mask.r, sd.mask.g, sd.mask.b);
-    half3 albedo = max(sd.albedoAlpha.rgb, 0.05h);
-    sd.lightColor += emission / albedo;
+    // no-op on purpose
 }
