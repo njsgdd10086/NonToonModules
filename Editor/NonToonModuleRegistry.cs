@@ -44,6 +44,7 @@ namespace NonToonModules
         public const string NonToonShaderName = "NonToon";
         private const string SettingsTypeName = "jp.lilxyzw.shadercore.ProjectSettings";
 
+
         /// <summary>被插件默认使用的模块 id（插件通过 EnsureEnabled 自动勾选）。</summary>
         public const string FabricModuleId = "jp.nontoon.switcher.fabric";
         public const string LightLimitModuleId = "com.atrinaxu.nontoon.lightlimit";
@@ -426,6 +427,66 @@ namespace NonToonModules
                         // 还原失败不影响功能
                     }
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 模块文件改动后自动重新生成 NonToon shader。
+    ///
+    /// 为什么需要：Shader Core 只在导入 .scshader 时才重新生成，所以**光改模块的 hlsl 是不会生效的** ——
+    /// shader 里还是旧的模块代码。这导致"改了模块却看不出变化"，实测就踩过：
+    /// 主光从「叠加」改成「取更亮者」之后，另一个工程里的 shader 仍是旧版，画面依旧是发白蒙脸。
+    /// 这里在编辑器加载/编译后算一次模块文件的指纹，和上次记录的不一样就自动重新生成。
+    /// </summary>
+    [InitializeOnLoad]
+    internal static class NonToonModuleAutoRegenerate
+    {
+        private const string HashKey = "NonToonModules.ModuleFingerprint";
+
+        static NonToonModuleAutoRegenerate()
+        {
+            EditorApplication.delayCall += Check;
+        }
+
+        private static void Check()
+        {
+            try
+            {
+                var fingerprint = Fingerprint();
+                if (string.IsNullOrEmpty(fingerprint)) return;
+                if (EditorPrefs.GetString(HashKey, string.Empty) == fingerprint) return;
+                EditorPrefs.SetString(HashKey, fingerprint);
+                NonToonModuleRegistry.RegenerateNonToonShader();
+                Debug.Log("[NonToon 模块] 检测到模块文件已更新，已自动重新生成 NonToon shader。");
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning("[NonToon 模块] 自动重新生成检查失败：" + exception.Message);
+            }
+        }
+
+        private static string Fingerprint()
+        {
+            var root = Path.GetFullPath("Packages/com.nontoon.modules/Shaders/Modules");
+            if (!Directory.Exists(root)) return null;
+            var files = Directory.GetFiles(root, "*.*", SearchOption.AllDirectories)
+                .Where(f => f.EndsWith(".hlsl", StringComparison.OrdinalIgnoreCase) ||
+                            f.EndsWith(".scmodule", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(f => f, StringComparer.Ordinal)
+                .ToArray();
+            if (files.Length == 0) return null;
+            var builder = new System.Text.StringBuilder();
+            foreach (var file in files)
+            {
+                var info = new FileInfo(file);
+                builder.Append(info.Name).Append('|').Append(info.Length).Append('|')
+                       .Append(info.LastWriteTimeUtc.Ticks).Append(';');
+            }
+            using (var sha = System.Security.Cryptography.SHA1.Create())
+            {
+                var bytes = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(builder.ToString()));
+                return BitConverter.ToString(bytes);
             }
         }
     }
