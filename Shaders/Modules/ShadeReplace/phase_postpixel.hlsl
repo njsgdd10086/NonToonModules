@@ -50,6 +50,13 @@ if (_Enable)
     // lilToon applies _ShadowStrength as lerp(1, s, strength).
     half mixS = lerp(1.0h, s1, _ShadowStrength);
 
+    // IMPORTANT: the shadow colour only scales the DIRECT light - the environment (SH ambient) term is
+    // added on top unscaled. sd.lightColor is saturate(env + direct), so multiplying the shadow colour by
+    // the whole light would also darken the ambient; in shadow that made materials nearly black
+    // (e.g. a shadow colour of 0.2 turned the ambient into 0.2 * ambient).
+    half3 ambient = env;
+    half3 direct = max(sd.lightColor - ambient, 0.0h);
+
     half3 lit = sd.col.rgb;                       // already albedo * light
-    sd.col.rgb = lerp(indirect * sd.lightColor, lit, mixS);
+    sd.col.rgb = lerp(indirect * direct + ambient, lit, mixS);
 }
