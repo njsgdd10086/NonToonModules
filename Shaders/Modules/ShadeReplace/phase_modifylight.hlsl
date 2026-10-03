@@ -1,8 +1,15 @@
 // NOTE: keep this file ASCII-only.
-// Intentionally empty: sd.lightColor is already saturated to 1 internally by the time this phase runs
-// (adding +5 to it moved the final pixel by only ~0.02, and assigning sd.col here changes nothing),
-// so the emission has to be added AFTER the shade pass - see phase_postpixel.hlsl.
+// Main-light restore.
+//
+// NonToon's own accumulate leaves sd.lightColor at ~0.54 on this avatar (measured by displaying the
+// variable itself at postpixel), while lilToon lands the face at 0.775. Forcing sd.lightColor to 1 here
+// puts the face at 0.717 - almost exactly lilToon - which also proves this is the phase that controls
+// the light (an earlier '+5' test wrongly appeared to do nothing because it sat inside a '#if' that never
+// compiled).
+// saturate() keeps it safe in scenes with very bright lights: _LightColor0 here is 0.84, but a scene can
+// easily have several directional lights and exceed 1 - an unbounded restore blew the avatar out before.
 if (_Enable)
 {
-    // no-op
+    half3 directLight = saturate(_LightColor0.rgb);
+    sd.lightColor = max(sd.lightColor, directLight);
 }

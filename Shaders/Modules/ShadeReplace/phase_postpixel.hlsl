@@ -1,14 +1,15 @@
 // NOTE: keep this file ASCII-only.
-// Emission, added at the very end of the chain (sd.col is final from here on - see birp.hlsl line 152;
-// an unconditional write here turned the avatar solid red in a rendered check).
+// Emission, added at the very end of the chain (sd.col is final from here on - birp.hlsl line 152).
+// Verified by rendering: an unconditional write to sd.col here turns the avatar solid red, and with real
+// emission data the mouth glows.
 //
-// The gate is the mask VALUE itself, not a keyword:
-//  - Shader Core delivers no module floats/colours/textures to the shader here, and neither '#if' nor a
-//    runtime 'if' on the SCConstValue property ever became true for this new property.
-//  - What does work is the mask: the converter now writes a .scmask for EVERY material, with R/G/B = the
-//    emission (0 when there is none) and A = the shared mask. So a material with no emission simply has
-//    black R/G/B and this branch adds nothing; previously such a material had no .scmask at all and
-//    sampled the white default, which is what blew the avatar out (0.414 -> 0.908).
+// The gate is the mask VALUE:
+//  - no module floats/colours/textures reach the shader here, and neither '#if' nor a runtime 'if' on a
+//    new SCConstValue property ever became true;
+//  - the converter now writes a .scmask for EVERY material, with R/G/B = the emission (0 when there is
+//    none) and A = the shared mask, so a material without emission simply adds nothing here. Before that,
+//    such a material had no .scmask at all and sampled the white default (+2 per pixel, the 0.414 -> 0.908
+//    blow-out).
 if (_Enable)
 {
     half3 emission = half3(sd.mask.r, sd.mask.g, sd.mask.b);
