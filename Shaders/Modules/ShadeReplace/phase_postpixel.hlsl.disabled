@@ -1,0 +1,1 @@
+﻿// 已被 phase_modifylight.hlsl 取代（postpixel 阶段法线为 0，无法计算 NdotL）
