@@ -1,9 +1,9 @@
 // NOTE: keep this file ASCII-only.
-// Intentionally a no-op for now: Shader Core does not deliver MODULE properties to the shader in this
-// project (measured: module floats, colours AND textures all fail - _EmissionStrength / _EmissionColor /
-// _EmissionTexture / _LightBoost / _ShadeGradientIndex never arrive, while SCConstValue keywords and
-// NonToon's own core properties do work). Any arithmetic here therefore either reads 0 or a white
-// default texture, which blew the avatar out to 0.96 (from 0.41). Re-enable once the delivery works.
+// Intentionally a no-op for now.
+// Shader Core 0.2.0 does not deliver module properties to the shader in this project - module floats,
+// colours AND textures all fail (verified with a red 8x8 probe assigned to the module's own
+// _EmissionTexture slot: the shader still samples the white default). Only SCConstValue keywords work.
+// The working delivery route is a .scmask asset (that is how NonToon's own _SharedMask reaches shaders).
 if (_Enable)
 {
     // no-op on purpose
