@@ -25,5 +25,5 @@ SC_float(_MainLightStrength, 1, [SCRange(0,2)], "", "")
 SC_Box
 SC_color(_EmissionColor, (1,1,1,1), [SCCache], "", "")
 SC_float(_EmissionStrength, 0, [SCRange(0,8)], "", "")
-SC_uint(_EmissionMaskChannel, 3, [SCMaskChannel], "__MaskChannel", "")
+SC_uint(_EmissionMaskChannel, 0, [SCMaskChannel], "__MaskChannel", "")
 SC_BoxEnd
