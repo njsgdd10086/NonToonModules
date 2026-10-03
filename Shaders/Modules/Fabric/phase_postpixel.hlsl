@@ -1,23 +1,16 @@
-// NOTE: keep this file ASCII-only.
+﻿// NOTE: keep this file ASCII-only.
 //
-// Fabric / weave shading.
+// Fabric / weave shading - DISABLED (no-op) on purpose.
 //
-// This module deliberately reads NO material properties. Reason (measured, not guessed):
-// Shader Core does not deliver module properties to the shader for modules we add ourselves, so any
-// parameter read here comes back as its default - and the old version also read sd.N_detail, which is
-// left uninitialised whenever NonToon's own Details module is off. The result was uncontrolled colour
-// blocks on the body (magenta) and shoulders (white/yellow).
+// History: the original version read module properties (_FabricNormalStrength / _FabricStrength /
+// _FabricDir) which Shader Core never delivers for modules we add ourselves, plus sd.N_detail which is
+// left uninitialised when NonToon Details is off. That produced uncontrolled colour patches.
+// A rewrite using sd.N and a sin() weave instead produced visible ring artefacts on the whole body,
+// which is far worse than no effect at all.
 //
-// It now uses only data that is always valid and always arrives:
-//   sd.N   - the geometric normal (core)
-//   sd.mask - the shared mask (core, .scmask-generated)
-// and applies a small, fixed weave modulation. No tuning constants that a user cannot reach:
-// the amount is a single documented constant below, chosen small enough to be safe on every material.
+// Until there is a version that is verifiably safe on real models, this phase does nothing. The module
+// toggle is left in place so the shader variant stays valid.
 if (_Enable)
 {
-    // Weave direction: a stable diagonal in tangent-ish space derived from the normal, so it varies
-    // across the surface without needing any texture or parameter.
-    half weave = sin(dot(sd.N.xy, half2(37.0h, 53.0h)) * 40.0h);
-    // 0.06 = the whole effect. Small enough that it can never turn into a colour patch on any material.
-    sd.col.rgb *= (1.0h + weave * 0.06h);
+    // intentionally empty
 }
