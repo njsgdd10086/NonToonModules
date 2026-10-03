@@ -1,3 +1,4 @@
+// NOTE: keep this file ASCII-only.
 if (_Enable)
 {
     UNITY_LIGHT_ATTENUATION(atten, i, vertex.position);
@@ -6,11 +7,6 @@ if (_Enable)
     sd.lightColor = saturate(sd.lightColor + max(mainLight - have, 0.0h));
     // emission: lilToon col += _EmissionColor.rgb * _EmissionColor.a * _EmissionBlend * mask
     half3 albedo = max(sd.albedoAlpha.rgb, 0.05h);
-    half em = _EmissionStrength > 0.0h
-        ? (_EmissionMaskChannel == 0 ? SCSample(_EmissionMask, sampler_BaseTexture, sd.uv).r
-         : _EmissionMaskChannel == 1 ? SCSample(_EmissionMask, sampler_BaseTexture, sd.uv).g
-         : _EmissionMaskChannel == 2 ? SCSample(_EmissionMask, sampler_BaseTexture, sd.uv).b
-         : SCSample(_EmissionMask, sampler_BaseTexture, sd.uv).a)
-        : 0.0h;
+    half em = sd.mask[_EmissionMaskChannel];
     sd.lightColor += _EmissionColor.rgb * _EmissionStrength * em / albedo;
 }
