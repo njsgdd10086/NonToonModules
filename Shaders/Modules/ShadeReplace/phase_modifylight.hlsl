@@ -1,6 +1,15 @@
-// 混合式补光：乘法保留环境光的冷色染色（实测 R-B 由 +0.055 变为 -0.035，方向与 lil 一致），
-// 再补少量中性直接光把整体亮度顶到 lil 的水平。
+// NOTE: keep this file ASCII-only.
+// Main-light restore. No tuning constants live here on purpose.
+//
+// NonToon's own accumulation can leave sd.lightColor far below the direct light, which renders the
+// avatar too dark; this takes whichever is brighter. saturate() keeps multi-light scenes safe
+// (this scene's _LightColor0 is 0.84, but a scene can easily exceed 1 and an unbounded restore blew
+// the avatar out before).
+//
+// Any tonal compensation (how bright the result should be) is a CONVERTER setting applied to the baked
+// base texture and the shade gradient, not a magic number here: Shader Core never delivers this
+// module's own properties to the shader, so a constant in this file would be unconfigurable.
 if (_Enable)
 {
-    sd.lightColor = saturate(sd.lightColor * 2.3h + _LightColor0.rgb * 0.30h);
+    sd.lightColor = max(sd.lightColor, saturate(_LightColor0.rgb));
 }
