@@ -20,7 +20,7 @@ SC_BoxEnd
 
 SC_float(_ShadowStrength, 1, [SCRange(0,1)], "", "")
 SC_float(_ShadowMainStrength, 0, [SCRange(0,1)], "", "")
-SC_float(_MainLightStrength, 1, [SCRange(0,2)], "", "")
+SC_float(_MainLightStrength, 1.6, [SCRange(0,4)], "", "")
 
 SC_Box
 SC_color(_EmissionColor, (1,1,1,1), [SCCache], "", "")
