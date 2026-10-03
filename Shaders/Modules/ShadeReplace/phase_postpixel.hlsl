@@ -17,7 +17,7 @@
 if (_Enable)
 {
     half3 tone = max(sd.col.rgb, 0.0h);
-    sd.col.rgb = pow(tone, 1.25h) * 1.02h;
+    sd.col.rgb = pow(tone, 1.35h) * 1.12h;
 
     half3 emission = half3(sd.mask.r, sd.mask.g, sd.mask.b);
     if (max(emission.r, max(emission.g, emission.b)) > 0.002h)
