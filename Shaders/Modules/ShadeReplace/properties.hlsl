@@ -20,3 +20,10 @@ SC_BoxEnd
 
 SC_float(_ShadowStrength, 1, [SCRange(0,1)], "", "")
 SC_float(_ShadowMainStrength, 0, [SCRange(0,1)], "", "")
+
+SC_Box
+SC_Texture2D(_EmissionMask, "white", [], "Emission Mask", "")
+SC_color(_EmissionColor, (1,1,1,1), [SCCache], "Emission Color", "")
+SC_float(_EmissionStrength, 0, [SCRange(0,8)], "Emission Strength", "")
+SC_uint(_EmissionMaskChannel, 0, [SCMaskChannel], "__MaskChannel", "")
+SC_BoxEnd
