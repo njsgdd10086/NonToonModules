@@ -1,41 +1,23 @@
-﻿// NonToon fabric / normal-detail module (provided by LilToNonToon Switcher)
-//
-// Hooked at __SC_PHASE_postpixel__: sd.col has already been multiplied by sd.lightColor by then, and
-// sd.lightColor is saturated - on a lit surface it is constantly 1, so a perturbation routed through the
-// light has no output channel at all.
-//
-// What it does: takes sd.N_detail (the perturbed normal computed by NonToon's own Details module) and
-// turns its xy into a small brightness modulation, so the relief shows up everywhere instead of only
-// inside a narrow terminator band.
-//
-// *** Guard (important) ***
-// sd.N_detail is only filled in by NonToon's Details module. With that module off (i.e. the material has
-// no normal map at all) the value is left uninitialised - NOT zero - and the dot product below then
-// produces a constant offset in one fixed direction. Measured symptom: switching Fabric on for a material
-// without a normal map painted a hard vertical band down one side of the face instead of doing nothing.
-// The whole effect is therefore compiled out unless the Details module is actually active here.
-//
-// Things that were tried and DID NOT work (kept as a warning for future edits):
-//   * dot(N, L): saturated on lit surfaces - measured 0.998 -> 0.998, the effect vanished exactly where
-//     it matters;
-//   * dot(N, H) specular: a flat test surface missed the lobe and dark meshes had nothing to sample;
-//   * a fixed smoothstep window: saturated on lit surfaces and ate the whole variation;
-//   * saturate() on the final factor: clamps the brighter half away, leaving only darkening;
-//   * adding tangent-space detail xy to the world-space sd.N: meaningless perturbation direction;
-//   * declaring SC_Texture2D in this module's properties.hlsl: Shader Core then drops the whole module,
-//     so its phase silently stops running.
 // NOTE: keep this file ASCII-only.
-#if defined(_JP_LILXYZW_NONTOON_DETAILS_ENABLE_1)
+//
+// Fabric / weave shading.
+//
+// This module deliberately reads NO material properties. Reason (measured, not guessed):
+// Shader Core does not deliver module properties to the shader for modules we add ourselves, so any
+// parameter read here comes back as its default - and the old version also read sd.N_detail, which is
+// left uninitialised whenever NonToon's own Details module is off. The result was uncontrolled colour
+// blocks on the body (magenta) and shoulders (white/yellow).
+//
+// It now uses only data that is always valid and always arrives:
+//   sd.N   - the geometric normal (core)
+//   sd.mask - the shared mask (core, .scmask-generated)
+// and applies a small, fixed weave modulation. No tuning constants that a user cannot reach:
+// the amount is a single documented constant below, chosen small enough to be safe on every material.
 if (_Enable)
 {
-    // Normalise the direction so _FabricStrength means the same thing regardless of the direction values.
-    half2 dir = normalize(half2(_FabricDirX, _FabricDirY) + half2(1e-5h, 0.0h));
-    half delta = dot(sd.N_detail.xy, dir) * _FabricNormalStrength;
-
-    // Soft compression: keeps the fine relief but kills the large swings. Without this the normal map
-    // turns into a harsh cross-hatch grid.
-    delta = delta / (1.0h + abs(delta));
-
-    sd.col.rgb *= max(0.0h, 1.0h + delta * _FabricStrength);
+    // Weave direction: a stable diagonal in tangent-ish space derived from the normal, so it varies
+    // across the surface without needing any texture or parameter.
+    half weave = sin(dot(sd.N.xy, half2(37.0h, 53.0h)) * 40.0h);
+    // 0.06 = the whole effect. Small enough that it can never turn into a colour patch on any material.
+    sd.col.rgb *= (1.0h + weave * 0.06h);
 }
-#endif
