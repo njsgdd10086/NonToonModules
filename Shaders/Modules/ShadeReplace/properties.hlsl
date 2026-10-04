@@ -1,5 +1,5 @@
 SC_uint(_EmissionOn, 0, [SCInHeader][SCToggle][SCConstValue(1,pixel)], "", "")
-SC_uint(_Enable, 0, [SCInHeader][SCToggle][SCConstValue(1,pixel)], "", "")
+SC_uint(_Enable, 1, [SCInHeader][SCToggle][SCConstValue(1,pixel)], "", "")
 
 SC_Box
 SC_color(_ShadowColor, (1,1,1,1), [SCCache], "", "")
