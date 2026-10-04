@@ -1,8 +1,8 @@
 {
     "name": "com.nontoon.modules",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "displayName": "NonToon Modules",
-    "description": "NonToon 的扩展模块集合（Shader Core 模块）：\n· 织物/法线细节（Fabric）—— 把 lilToon 那种布料质感补回来\n· 亮度上下限与亮度倍数（LightLimit）—— Light Limit Changer 式的亮度控制\n\n模块以 Shader Core 模块的形式注入，不改动 NonToon 本体。菜单 Tools/NonToon 模块 里可以逐项勾选开关；装了 LilToNonToon Switcher 或 NonToon 亮度控制的话，它们使用时会自动帮你勾上需要的模块。",
+    "description": "NonToon 鐨勬墿灞曟ā鍧楅泦鍚堬紙Shader Core 妯″潡锛夛細\n路 缁囩墿/娉曠嚎缁嗚妭锛團abric锛夆€斺€?鎶?lilToon 閭ｇ甯冩枡璐ㄦ劅琛ュ洖鏉n路 浜害涓婁笅闄愪笌浜害鍊嶆暟锛圠ightLimit锛夆€斺€?Light Limit Changer 寮忕殑浜害鎺у埗\n\n妯″潡浠?Shader Core 妯″潡鐨勫舰寮忔敞鍏ワ紝涓嶆敼鍔?NonToon 鏈綋銆傝彍鍗?Tools/NonToon 妯″潡 閲屽彲浠ラ€愰」鍕鹃€夊紑鍏筹紱瑁呬簡 LilToNonToon Switcher 鎴?NonToon 浜害鎺у埗鐨勮瘽锛屽畠浠娇鐢ㄦ椂浼氳嚜鍔ㄥ府浣犲嬀涓婇渶瑕佺殑妯″潡銆?,
     "unity": "2022.3",
     "keywords": [
         "NonToon",
