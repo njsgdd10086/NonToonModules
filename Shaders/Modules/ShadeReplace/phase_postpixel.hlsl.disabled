@@ -1,1 +1,0 @@
-﻿// 已废弃：postpixel 阶段 sd.N 为 0，无法计算 NdotL。逻辑已并入 phase_modifylight.hlsl。
