@@ -2,25 +2,10 @@
     "name": "com.nontoon.modules",
     "version": "0.3.0",
     "displayName": "NonToon Modules",
-    "description": "NonToon 鐨勬墿灞曟ā鍧楅泦鍚堬紙Shader Core 妯″潡锛夛細\n路 缁囩墿/娉曠嚎缁嗚妭锛團abric锛夆€斺€?鎶?lilToon 閭ｇ甯冩枡璐ㄦ劅琛ュ洖鏉n路 浜害涓婁笅闄愪笌浜害鍊嶆暟锛圠ightLimit锛夆€斺€?Light Limit Changer 寮忕殑浜害鎺у埗\n\n妯″潡浠?Shader Core 妯″潡鐨勫舰寮忔敞鍏ワ紝涓嶆敼鍔?NonToon 鏈綋銆傝彍鍗?Tools/NonToon 妯″潡 閲屽彲浠ラ€愰」鍕鹃€夊紑鍏筹紱瑁呬簡 LilToNonToon Switcher 鎴?NonToon 浜害鎺у埗鐨勮瘽锛屽畠浠娇鐢ㄦ椂浼氳嚜鍔ㄥ府浣犲嬀涓婇渶瑕佺殑妯″潡銆?,
+    "description": "NonToon 的扩展模块集合（Shader Core 模块）：\n· 亮度上下限与亮度倍数（LightLimit）—— Light Limit Changer 式的亮度控制\n· 主光强度补正（MainLight）\n· 阴影替换 / 自发光（ShadeReplace）—— 把 lilToon 的绝对阴影色与自发光映射到 NonToon\n\n模块以 Shader Core 模块的形式提供，需在 NonToon 的模块列表里勾选。",
     "unity": "2022.3",
-    "keywords": [
-        "NonToon",
-        "Shader Core",
-        "Module",
-        "Fabric",
-        "Light",
-        "Brightness",
-        "VRChat"
-    ],
-    "author": {
-        "name": "ATRI_NAIXU",
-        "url": "https://github.com/njsgdd10086"
-    },
+    "keywords": ["NonToon", "Shader", "Module", "Shader Core"],
+    "author": { "name": "ATRI_NAIXU", "url": "https://github.com/njsgdd10086" },
     "license": "MIT",
-    "hideInEditor": false,
-    "vpmDependencies": {
-        "jp.lilxyzw.shadercore": ">=0.1.5",
-        "jp.lilxyzw.nontoon": ">=0.1.3"
-    }
+    "hideInEditor": false
 }
