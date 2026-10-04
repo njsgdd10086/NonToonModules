@@ -2,10 +2,18 @@
     "name": "com.nontoon.modules",
     "version": "0.3.0",
     "displayName": "NonToon Modules",
-    "description": "NonToon 的扩展模块集合（Shader Core 模块）：\n· 亮度上下限与亮度倍数（LightLimit）—— Light Limit Changer 式的亮度控制\n· 主光强度补正（MainLight）\n· 阴影替换 / 自发光（ShadeReplace）—— 把 lilToon 的绝对阴影色与自发光映射到 NonToon\n\n模块以 Shader Core 模块的形式提供，需在 NonToon 的模块列表里勾选。",
+    "description": "NonToon 的扩展模块集合（Shader Core 模块）：亮度上下限与亮度倍数（LightLimit，Light Limit Changer 式的亮度控制）；主光强度补正（MainLight）；阴影替换 / 自发光（ShadeReplace，把 lilToon 的绝对阴影色与自发光映射到 NonToon）。模块以 Shader Core 模块的形式提供，需在 NonToon 的模块列表里勾选。",
     "unity": "2022.3",
-    "keywords": ["NonToon", "Shader", "Module", "Shader Core"],
-    "author": { "name": "ATRI_NAIXU", "url": "https://github.com/njsgdd10086" },
+    "keywords": [
+        "NonToon",
+        "Shader",
+        "Module",
+        "Shader Core"
+    ],
+    "author": {
+        "name": "ATRI_NAIXU",
+        "url": "https://github.com/njsgdd10086"
+    },
     "license": "MIT",
     "hideInEditor": false
 }
