@@ -1,25 +1,28 @@
 // NOTE: keep this file ASCII-only.
 //
-// Fabric / weave shading - runtime, no baking.
+// Fabric / weave shading - the effect that was verified working before, restored.
 //
-// WHY THIS SHAPE (all measured, do not "simplify" it back):
-//   * Shader Core does NOT deliver this module's own properties (float/color/texture) to the shader,
-//     so the phase must not read _FabricNormalStrength / _FabricStrength / _FabricDir. Reading them
-//     gave garbage (the module then painted uncontrolled magenta/white blocks on a real avatar).
-//   * sd.N_detail is uninitialised whenever NonToon's own Details module is off - also garbage.
-//   * What IS always valid and always arrives: sd.N (the shading normal) and sd.mask (the shared mask).
-//     NonToon's _NormalMap is a CORE property, so the normal-map detail is already contained in sd.N.
+// Original form (which produced the look the user wants):
+//     half2 dir = normalize(half2(_FabricDirX, _FabricDirY) + half2(1e-5h, 0.0h));
+//     half delta = dot(sd.N_detail.xy, dir) * _FabricNormalStrength;
+//     delta = delta / (1.0h + abs(delta));
+//     sd.col.rgb *= max(0.0h, 1.0h + delta * _FabricStrength);
 //
-// An earlier attempt used a high-frequency sin() on sd.N.xy with mixed half/float precision; on a real
-// model that produced strong ring artefacts (and can break compilation outright). This version is
-// deliberately:
-//   * float precision throughout (no half/float mixing),
-//   * low frequency (8.0, not 40.0) so no moire on a 1024+ texture or at distance,
-//   * very small amplitude (0.04) so it can never dominate or tint anything,
-//   * strictly a brightness modulation (multiplied greyscale), so it cannot introduce a colour cast.
+// Two things had to change, both measured:
+//   * _FabricDirX/_FabricDirY/_FabricNormalStrength/_FabricStrength are THIS module's own properties and
+//     Shader Core never delivers them (they read as defaults) - so the direction is fixed here and the
+//     strengths are constants.
+//   * sd.N_detail is uninitialised whenever NonToon's Details module is off, which painted uncontrolled
+//     magenta/white blocks. sd.N is always valid; NonToon's _NormalMap is a core property, so its
+//     detail is already carried by sd.N.
+//
+// Everything else (the normalisation, the clamp, the multiply) is the original maths, so the look
+// matches. Kept in float precision: mixing half/float here previously produced ring artefacts and could
+// break compilation outright.
 if (_Enable)
 {
-    float2 weaveUv = float2(sd.N.x, sd.N.y) * 8.0;
-    float weave = sin(weaveUv.x * 3.1 + weaveUv.y * 5.7);
-    sd.col.rgb *= (1.0 + weave * 0.04);
+    float2 dir = normalize(float2(0.35, -0.5));
+    float delta = dot(float2(sd.N.x, sd.N.y), dir) * 1.0;
+    delta = delta / (1.0 + abs(delta));
+    sd.col.rgb *= max(0.0, 1.0 + delta * 0.25);
 }
