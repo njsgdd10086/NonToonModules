@@ -1,4 +1,4 @@
-﻿SC_uint(_Enable, 0, [SCInHeader][SCToggle][SCConstValue(1,pixel)], "", "")
+SC_uint(_Enable, 1, [SCInHeader][SCToggle][SCConstValue(1,pixel)], "", "")
 
 SC_Box
 SC_float(_FabricNormalStrength, 1, [SCRange(-10,10)], "", "")
