@@ -1,24 +1,17 @@
-// NOTE: keep this file ASCII-only.
+﻿// NOTE: keep this file ASCII-only.
 //
-// Fabric / weave shading - the effect that was verified working before, restored.
+// Fabric / weave shading.
 //
-// Original form (which produced the look the user wants):
-//     half2 dir = normalize(half2(_FabricDirX, _FabricDirY) + half2(1e-5h, 0.0h));
-//     half delta = dot(sd.N_detail.xy, dir) * _FabricNormalStrength;
-//     delta = delta / (1.0h + abs(delta));
-//     sd.col.rgb *= max(0.0h, 1.0h + delta * _FabricStrength);
+// The per-material gate is the material's own _jp_nontoon_switcher_fabric_Enable value
+// (the converter sets it to 1 only for materials whose source had a _BumpMap).
 //
-// Two things had to change, both measured:
-//   * _FabricDirX/_FabricDirY/_FabricNormalStrength/_FabricStrength are THIS module's own properties and
-//     Shader Core never delivers them (they read as defaults) - so the direction is fixed here and the
-//     strengths are constants.
-//   * sd.N_detail is uninitialised whenever NonToon's Details module is off, which painted uncontrolled
-//     magenta/white blocks. sd.N is always valid; NonToon's _NormalMap is a core property, so its
-//     detail is already carried by sd.N.
-//
-// Everything else (the normalisation, the clamp, the multiply) is the original maths, so the look
-// matches. Kept in float precision: mixing half/float here previously produced ring artefacts and could
-// break compilation outright.
+// KNOWN LIMITATION (measured, 2026-04): on NonToon this phase can only modulate brightness by a
+// few percent, because the normal map's world-space perturbation is small: _NormalScale 0 / 1.2 / 8
+// produced renders that differ by less than 1% (5% percentile 0.1589 in all three cases) on
+// 'carde paleblue_nontoon'. The normal IS delivered (sd.N changes measurably when _NormalScale
+// changes) - the weak response comes from NonToon's core, whose main lighting is
+// `sd.lightColor = saturate(env + lightSum.color)` and therefore independent of the normal; the
+// normal can only shift the Shade module's ramp lookup, and a near-white ramp makes that invisible.
 if (_Enable)
 {
     float2 dir = normalize(float2(0.35, -0.5));
